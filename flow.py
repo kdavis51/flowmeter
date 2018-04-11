@@ -1,4 +1,4 @@
-import os # importing OS module just in-case needed   
+ import os # importing OS module just in-case needed   
 import time # Importing Time module  
 import RPi.GPIO as gpio # Importing RPIO module as gpio  
   
@@ -40,7 +40,7 @@ def showerFlow():
                       waitTimerCountshower = int(time.time())  
             else:  
                  waitTimerCountshower = int(time.time())  
-      showerEndTime = int(time.time())  
+       showerEndTime = int(time.time())  
        print 'shower end time', showerEndTime  
        if showerCount == 15:  
             showerSecsPerLiters = showerEndTime - showerStartTime  
