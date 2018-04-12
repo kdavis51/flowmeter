@@ -1,0 +1,134 @@
+import RPi.GPIO as GPIO
+import time, sys
+import smtplib
+import os
+
+GPIO.setmode(GPIO.BOARD)
+
+spigotpin = 11
+showerpin = 37
+faucetpin = 15
+
+GPIO.setup(spigotpin,GPIO.IN,pull_up_down=GPIO.PUD_DOWN)
+GPIO.setup(showerpin,GPIO.IN,pull_up_down=GPIO.PUD_DOWN)
+GPIO.setup(faucetpin,GPIO.IN,pull_up_down=GPIO.PUD_DOWN)
+
+spigot_rate_cnt = 0
+shower_rate_cnt = 0
+faucet_rate_cnt = 0
+
+spigot_total_cnt = 0
+shower_total_cnt = 0
+faucet_total_cnt = 0
+
+minutes = 0
+seconds = 0
+constant = 0.0625
+time_new = 0.0
+
+print "control C to exit"
+
+while True:
+    try:
+        time_new = time.time() + 10 #sends an update every how many seconds
+        spigot_rate_cnt = 0
+	faucet_rate_cnt = 0
+	shower_rate_cnt = 0
+
+        while time.time() <= time_new:
+            #time.sleep(1)
+            #seconds +=1
+            #print GPIO.input(inpt)
+
+		if GPIO.input(spigotpin) !=0:
+			spigot_rate_cnt +=1
+			spigot_total_cnt +=1
+
+		if GPIO.input(showerpin) !=0:
+			shower_rate_cnt +=1
+			shower_total_cnt +=1
+
+		if GPIO.input(faucetpin) !=0:
+			facuet_rate_cnt +=1
+			facuet_total_cnt +=1
+
+	minutes +=1
+
+        print "Current spigot rate: " + str(round((spigot_rate_cnt * constant),2)) + " gallons" + "\n"
+	print "Current shower rate: " + str(round((shower_rate_cnt * constant),2)) + " gallons" + "\n"
+	print "Current faucet rate: " + str(round((faucet_rate_cnt * constant),2)) + " gallons" + "\n\n"
+        
+        print "Current spigot total: " + str(round((spigot_total_cnt * constant),2)) + " gallons" + "\n"
+	print "Current shower total: " + str(round((shower_total_cnt * constant),2)) + " gallons" + "\n"
+	print "Current faucet total: " + str(round((faucet_total_cnt * constant),2)) + " gallons" + "\n"
+	print "Minutes: " + str(minutes) +"\n\n\n"
+
+    except KeyboardInterrupt:
+        break
+
+seconds = minutes * 60
+
+#minutes = seconds / 60
+#seconds = seconds - (minutes * 60)
+
+os.system('clear')   # clears screen
+
+print "\n\nDone\n\n\n"
+
+
+print "Current spigot total: " + str(round((spigot_total_cnt * constant),2)) + " gallons" + "\n"
+print "Current shower total: " + str(round((shower_total_cnt * constant),2)) + " gallons" + "\n"
+print "Current faucet total: " + str(round((faucet_total_cnt * constant),2)) + " gallons" + "\n\n\n"
+
+#print "Total Count: " + str(round((spigot_total_cnt + shower_total_cnt+ faucet_total_cnt),2)) + " gallons\n\n" #count means liters for now
+
+print "Total Run Time: " + str(minutes) + " minutes and " + str(seconds) + " seconds\n"
+
+cost = "0.00631"
+
+def money(x):
+    costs = x * float(cost)
+    costs = round(costs, 2)
+    return "$" + str(costs)
+
+def annual(x):
+    ann = x * 365
+    ann = round(ann,2)
+    return str(ann)
+
+shower = shower_total_cnt
+faucet = faucet_total_cnt
+spigot = spigot_total_cnt
+
+total = shower + faucet + spigot
+
+tday = datetime.date.today()
+date = tday.strftime("%A") + ", " + tday.strftime("%B") + " " + tday.strftime("%d") + ", " + tday.strftime("%Y")
+
+smtpUser = 'poettec2018@gmail.com'
+smtpPass = 'johncarterowen'
+
+toAdd = 'td662th@gmail.com'
+fromAdd = smtpUser
+
+subject = "Water Usage"
+header = 'To: ' + toAdd + '\n' + 'From: ' + fromAdd + '\n' + 'Subject: ' + subject
+body = "Water use for " + str(date) + ":\nTotal gallons of water used today: " + str(total) + "\nIn shower: " + str(shower) + " gallons\n" + "From faucet: " + str(faucet) + " gallons\nFrom spigot: " + str(spigot) + " gallons\nAverage annual water usage: " + annual(total) + " gallons\n\nWater cost for " + str(date) + ":\nTotal cost of gallons today: " + str(money(total)) + "\nFrom shower: " + str(money(shower)) + "\nFrom faucet: " + money(faucet) + "\nFrom spigot: " + money(spigot) + "\nAverage annnual water cost: $" + str(round((int(total) * float(cost) * 365), 2))
+
+
+print header + '\n' + body
+
+
+s = smtplib.SMTP('smtp.gmail.com',587)
+
+s.ehlo()
+s.starttls()
+s.ehlo()
+
+s.login(smtpUser, smtpPass)
+s.sendmail(fromAdd, toAdd, header + '\n\n' + body)
+
+s.quit()
+
+GPIO.cleanup()
+sys.exit()
