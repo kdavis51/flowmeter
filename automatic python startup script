@@ -1,0 +1,17 @@
+Here's how to run a python program at startup with a terminal session console visible after bootup
+
+1) edit the autostart config file  
+
+    sudo nano ~/.config/lxsession/LXDE-pi/autostart
+
+2)  enter this command at at the end of the file (/home/pi/Documents/runme.py is the path to python program)
+  
+    @lxterminal -e sudo python /home/pi/Documents/runme.py
+    
+3) save program
+
+    ctrl-x
+
+    y
+    
+4) reboot for verification
