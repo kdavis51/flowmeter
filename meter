@@ -106,7 +106,7 @@ tday = datetime.date.today()
 date = tday.strftime("%A") + ", " + tday.strftime("%B") + " " + tday.strftime("%d") + ", " + tday.strftime("%Y")
 
 smtpUser = 'poettec2018@gmail.com'
-smtpPass = 'johncarterowen'
+smtpPass = 'XXXXXXXXXXXXXXX'
 
 toAdd = 'td662th@gmail.com'
 fromAdd = smtpUser
